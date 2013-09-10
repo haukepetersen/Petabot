@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>images/icon.png</file>
+        <file>images/gamepad.png</file>
+        <file>images/network.png</file>
+        <file>images/quit-icon.png</file>
+        <file>images/about-icon.png</file>
+        <file>images/test-icon.png</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,17 @@
+{
+  "name": "FuckupCtrl",
+  "version": "1",
+  "manifest_version": 2,
+  "permissions": ["serial"],
+  "minimum_chrome_version": "23",
+  "icons": {
+    "16": "img/icon_16.png",
+    "128": "img/icon_128.png"
+  },
+  "app": {
+    "background": {
+      "scripts": ["js/bootstrap.js"],
+      "transient": true
+    }
+  }
+}

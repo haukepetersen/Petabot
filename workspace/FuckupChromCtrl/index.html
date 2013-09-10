@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>FuckupCtrl</title>
+    <link href="css/main.css" rel="stylesheet">
+	<script src="js/lib/jquery-1.9.1.js"></script>
+	<script src="js/lib/highcharts/highcharts.js"></script>
+	<script src="js/lib/highcharts/modules/exporting.js"></script>
+	<script src="js/uart.js"></script>
+	<script src="js/main.js"></script>
+</head>
+<body>
+  <div id="s_header">Fuckup Ctrl!</div>
+  <div id="s_connect">
+    <div>Connection Information</div>
+	<label for="uart_port">Port:</label>
+	<input id="uart_port" name="uart_port" type="text" value="COM3" />
+	<label for="uart_baudrate">Baudrate:</label>
+	<input id="uart_baudrate" name="uart_baudrate" type="text" value="115200" />
+	
+	<div id="btn_connect" class="btn not_connected">Connect</div>
+	<div id="btn_start" class="btn">Start</div>
+	<div id="btn_stop" class="btn">Stop</div>
+  </div>
+  <div id="s_graphs">
+    Here are my lovely plots!
+    <div id="graphs_acc" class="plot"></div>
+	<div id="graphs_gyro" class="plot">Plot 2</div>
+  </div>
+  
+  
+</body>
+</html>
