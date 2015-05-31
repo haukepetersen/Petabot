@@ -2,7 +2,7 @@
 APPLICATION = peta
 
 # If no BOARD is found in the environment, use this default:
-BOARD ?= stm32f4discovery
+BOARD ?= samr21-xpro
 
 # This has to be the absolute path to the RIOT base directory:
 RIOTBASE ?= $(CURDIR)/../../riot/RIOT
@@ -12,9 +12,8 @@ USEMODULE += shell
 USEMODULE += shell_commands
 USEMODULE += ps
 USEMODULE += servo
-USEMODULE += xbee
-USEMODULE += ng_nomac
-USEMODULE += ng_netbase
+USEMODULE += ng_netif
+USEMODULE += auto_init_ng_netif
 
 # Comment this out to disable code in RIOT that does safety checking
 # which is not needed in a production environment but helps in the

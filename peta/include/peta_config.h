@@ -54,7 +54,7 @@
  */
 #define CONF_MOTOR_PWM          (PWM_0)
 #define CONF_MOTOR_PWM_CHAN     (0U)
-#define CONF_MOTOR_FREQ         (10000U)
+#define CONF_MOTOR_FREQ         (1000U)
 #define CONF_MOTOR_RES          (0x03ff)    /* results in ~10MHz timer freq */
 #define CONF_MOTOR_DIRA         (GPIO_3)
 #define CONF_MOTOR_DIRB         (GPIO_4)
@@ -64,11 +64,19 @@
  * @brief   Configure communication
  * @{
  */
-#define CONF_COMM_XBEE_UART     (UART_1)
-#define CONF_COMM_XBEE_BR       (9600U)
-
 #define CONF_COMM_PAN           (0x2300)
-#define CONF_COMM_ADDR          (0x2301)
+#define CONF_COMM_ADDR          {0x23, 0x01}
+#define CONF_COMM_CHAN          (26U)
+/** @} */
+
+/**
+ * @brief   Watchdog configuration
+ * @{
+ */
+#define CONF_WD_PRIO            (THREAD_PRIORITY_MAIN - 4)
+#define CONF_WD_INTERVAL        (200 * 1000)        /* 200ms */
+#define CONF_WD_THRESSHOLD      (3U)                /* at least 3 packets before
+                                                     * shutdown */
 /** @} */
 
 #ifdef __cplusplus

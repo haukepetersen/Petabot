@@ -30,41 +30,30 @@
 
 #include <stdio.h>
 
+#include "kernel.h"
+#include "net/ng_netif.h"
+#include "net/ng_netapi.h"
+
 #include "comm.h"
 #include "peta_config.h"
-
-#include "kernel.h"
-#include "thread.h"
-#include "periph/gpio.h"
-#include "xbee.h"
-#include "net/ng_nomac.h"
-#include "net/ng_netbase.h"
-
-
-#define IF_STACKSIZE            (KERNEL_CONF_STACKSIZE_DEFAULT)
-#define IF_STACKPRIO            (PRIORITY_MAIN - 4)
-
-static char if_stack[IF_STACKSIZE];
-
-static xbee_t xbee;
-
-static kernel_pid_t if_pid;
-
 
 
 void comm_init(void)
 {
-    uint16_t addr = CONF_COMM_ADDR;
+    kernel_pid_t ifs[NG_NETIF_NUMOF];
+    uint8_t addr[2] = CONF_COMM_ADDR;
     uint16_t pan = CONF_COMM_PAN;
+    uint16_t chan = CONF_COMM_CHAN;
 
-    /* initialize xbee driver */
-    puts("comm: init xbee");
-    xbee_init(&xbee, CONF_COMM_XBEE_UART, CONF_COMM_XBEE_BR,
-              GPIO_NUMOF, GPIO_NUMOF);
-    puts("comm: starting nomac");
-    if_pid = ng_nomac_init(if_stack, IF_STACKSIZE, IF_STACKPRIO, "xbee",
-                           (ng_netdev_t *)(&xbee));
+    /* get the PID of the first radio */
+    if (ng_netif_get(ifs) <= 0) {
+        puts("comm: ERROR during init, not radio found\n");
+        return;
+    }
+
+    /* initialize the radio */
     puts("comm: setting address and PAN");
-    ng_netapi_set(if_pid, NETCONF_OPT_ADDRESS, 0, &addr, 2);
-    ng_netapi_set(if_pid, NETCONF_OPT_NID, 0, &pan, 2);
+    ng_netapi_set(ifs[0], NETCONF_OPT_ADDRESS, 0, &addr, 2);
+    ng_netapi_set(ifs[0], NETCONF_OPT_NID, 0, &pan, 2);
+    ng_netapi_set(ifs[0], NETCONF_OPT_CHANNEL, 0, &chan, 2);
 }

@@ -34,10 +34,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "brain.h"
-#include "peta_config.h"
-
 #include "shell.h"
+#include "board.h"
+
+#include "brain.h"
+#include "wd.h"
+#include "peta_config.h"
 
 #define SHELL_BUFSIZE       (64U)
 
@@ -70,11 +72,30 @@ static int _steer(int argc, char **argv)
     }
 
     dir = (int16_t)atoi(argv[1]);
+    printf("read steering value: %i\n", dir);
     if (dir < -0x03ff || dir > 0x03ff) {
         puts("dir value out of range\n");
         return 1;
     }
     brain_steer(dir);
+    return 0;
+}
+
+static int _debug(int argc, char **argv)
+{
+    int state;
+
+    if (argc < 2) {
+        printf("usage: %s <1|0>\n", argv[0]);
+        return 1;
+    }
+    state = atoi(argv[1]);
+    if (state) {
+        wd_activate(0);
+    }
+    else {
+        wd_activate(1);
+    }
     return 0;
 }
 
@@ -94,12 +115,14 @@ static void _putc(int c)
 static const shell_command_t _commands[] = {
     { "speed", "set Peta's speed", _speed },
     { "steer", "set direction", _steer },
+    { "debug", "enable debug mode", _debug },
     { NULL, NULL, NULL }
 };
 
 int main(void)
 {
     shell_t shell;
+    LED_RED_OFF;
 
     /* initialize (and run) the brain */
     puts("initializing the brain");
