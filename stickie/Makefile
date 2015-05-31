@@ -2,8 +2,6 @@ APPLICATION = stickie
 
 # joystick configuration
 STICK ?= /dev/input/js0
-STICK_AX ?= 1
-STICK_AY ?= 2
 # RIOT node
 ANTENNA ?= /dev/ttyUSB1
 
@@ -21,7 +19,7 @@ OBJ = $(SRC:%.c=%.o)
 all: $(APPLICATION)
 
 run: $(APPLICATION)
-	./$(APPLICATION) $(STICK) $(STICK_AX) $(STICK_AY) $(ANTENNA)
+	./$(APPLICATION) $(STICK) $(ANTENNA)
 
 $(APPLICATION): $(OBJ)
 	gcc $(CFLAGS) -o $(APPLICATION) $^

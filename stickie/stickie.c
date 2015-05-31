@@ -21,12 +21,14 @@
 #define AXIS_STEERING       (3)
 #define AXIS_FW             (2)
 #define AXIS_BW             (5)
+#define BUTTON_DISCO        (7)
 
 static int remote;
 static int js;
 
 static volatile int dir = 0;
 static volatile int speed = 0;
+static volatile uint8_t switches = 0;
 
 static int buttons = 0;
 static int axes = 0;
@@ -98,13 +100,17 @@ static void *stick_reader(void *arg)
         n = read(js, buf, 8);
         if (n == 8) {
 
-            // if (buf[6] == TYPE_BUTTON) {
-            //     if (buf[4]) {
-            //         printf("button %u pressed\n", buf[7]);
-            //     } else {
-            //         printf("button %u released\n", buf[7]);
-            //     }
-            // }
+            if (buf[6] == TYPE_BUTTON) {
+                if (buf[4]) {
+                    /* button pressed actions here, buf[7] holds button number */
+                    if (buf[7] == BUTTON_DISCO) {
+                        switches ^= (1 << 0);
+                        newdata = 1;
+                    }
+                } else {
+                    /* put button release action here if needed */
+                }
+            }
 
             if (buf[6] == TYPE_AXIS) {
                 if (buf[7] == AXIS_STEERING) {
@@ -133,12 +139,12 @@ static void *stick_reader(void *arg)
                 else {
                     speed = a / 64;
                 }
-                dir = -1 * (steering / 32);
+                dir = (steering / 32);
 
                 printf("raw:  %7i   %7u   %7u\n", steering, a, b);
                 puts("");
-                printf("        speed  steering\n");
-                printf("ctrl  %7i   %7i\n", speed, dir);
+                printf("        speed  steering  switches\n");
+                printf("ctrl  %7i   %7i      0x%02x\n", speed, dir, switches);
                 printf("\033[F\033[F\033[F\033[F");
             }
         }
@@ -181,7 +187,8 @@ int main(int argc, char **argv)
 
     while (1) {
         usleep(UPDATE_INTERVAL);
-        line_len = sprintf(line, "ctrl %i %i\n", speed, dir);
+        line_len = sprintf(line, "ctrl %i %i %i\n", speed, dir,
+                           (unsigned int)switches);
         write(remote, line, line_len);
     }
 
