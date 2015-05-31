@@ -35,6 +35,7 @@
 
 
 #define COMM_MSG_CTRL           (0xee)
+#define COMM_MSG_LEN            (6U)
 
 void comm_init(void);
 

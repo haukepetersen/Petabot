@@ -57,13 +57,15 @@ static void _dispatch(uint8_t *data, size_t len)
 {
     int16_t speed, dir;
 
-    if (data[0] == COMM_MSG_CTRL) {
+    if (data[0] == COMM_MSG_CTRL && len == COMM_MSG_LEN) {
         memcpy(&speed, &(data[1]), 2);
         memcpy(&dir, &(data[3]), 2);
         brain_set_speed(speed);
         brain_steer(dir);
+        brain_switches(data[5]);
+        wd_report();
     } else {
-        puts("unknown data");
+        // puts("unknown data");
     }
 }
 
@@ -83,7 +85,6 @@ static void *_brain_thread(void *arg)
         if (msg.type == NG_NETAPI_MSG_TYPE_RCV) {
             snip = (ng_pktsnip_t *)msg.content.ptr;
             _dispatch(snip->data, snip->size);
-            wd_report();
             ng_pktbuf_release(snip);
         }
     }
@@ -101,6 +102,7 @@ void brain_init(void)
         puts("ERROR initializing the STEERING\n");
         return;
     }
+    servo_set(&steering, CONF_STEERING_CENTER);
     /* initialize motor control */
     puts("init motor");
     gpio_init_out(CONF_MOTOR_DIRA, GPIO_NOPULL);
@@ -111,6 +113,8 @@ void brain_init(void)
         return;
     }
     pwm_set(CONF_MOTOR_PWM, CONF_MOTOR_PWM_CHAN, 0);
+    /* initialize switches */
+    gpio_init_out(CONF_DISCO_PIN, GPIO_NOPULL);
     /* initialize the software watchdog */
     wd_init();
     /* initializing network support */
@@ -142,4 +146,14 @@ void brain_steer(int16_t dir)
         dir = CONF_STEERING_MIN;
     }
     servo_set(&steering, (unsigned int)dir);
+}
+
+void brain_switches(uint8_t state)
+{
+    if (state & CONF_DISCO_SWITCH) {
+        gpio_set(CONF_DISCO_PIN);
+    }
+    else {
+        gpio_clear(CONF_DISCO_PIN);
+    }
 }

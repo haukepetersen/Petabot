@@ -61,6 +61,14 @@
 /** @} */
 
 /**
+ * @brief   Switch configurations
+ * @{
+ */
+#define CONF_DISCO_SWITCH       (0x01)
+#define CONF_DISCO_PIN          (GPIO_9)
+/** @} */
+
+/**
  * @brief   Configure communication
  * @{
  */

@@ -50,7 +50,7 @@ static kernel_pid_t if_pid;
 
 static uint8_t peta_addr[2];
 
-static uint8_t ctrl[5];
+static uint8_t ctrl[6];
 
 
 static int _ctrl(int argc, char **argv)
@@ -59,23 +59,28 @@ static int _ctrl(int argc, char **argv)
     ng_pktsnip_t *pkt;
     ng_netif_hdr_t *nethdr;
 
-    if (argc < 3) {
-        printf("usage: %s SPEED DIR [both: -1023 to 1023]\n", argv[0]);
+    if (argc < 4) {
+        printf("usage: %s <speed> <dir> <switches>\n", argv[0]);
+        puts("       - speed [-1023,1023]\n"
+             "       - dir   [[-1023,1023]\n"
+             "       - switches: 8-bit bitfield");
         return 1;
     }
 
     speed = (uint16_t)atoi(argv[1]);
-    dir = (uint16_t)atoi(argv[2]);
     memcpy(&(ctrl[1]), &speed, 2);
+    dir = (uint16_t)atoi(argv[2]);
     memcpy(&(ctrl[3]), &dir, 2);
-    printf("CTRL - speed: %i, dir: %i\n", speed, dir);
-    for (int i = 0; i < 5; i++) {
+    ctrl[5] = (uint8_t)atoi(argv[3]);
+
+    printf("CTRL - speed: %i, dir: %i, switches: 0x%02x\n", speed, dir, ctrl[5]);
+    for (int i = 0; i < 6; i++) {
         printf("0x%02x ", ctrl[i]);
     }
     printf("\n");
 
     /* allocate and send packet */
-    pkt = ng_pktbuf_add(NULL, ctrl, 5, NG_NETTYPE_UNDEF);
+    pkt = ng_pktbuf_add(NULL, ctrl, sizeof(ctrl), NG_NETTYPE_UNDEF);
     pkt = ng_pktbuf_add(pkt, NULL, sizeof(ng_netif_hdr_t) + 2, NG_NETTYPE_NETIF);
     nethdr = (ng_netif_hdr_t *)pkt->data;
     ng_netif_hdr_init(nethdr, 0, 2);
