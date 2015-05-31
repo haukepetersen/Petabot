@@ -58,13 +58,8 @@ static void _dispatch(uint8_t *data, size_t len)
     int16_t speed, dir;
 
     if (data[0] == COMM_MSG_CTRL) {
-        for (int i = 0; i < 5; i++) {
-            printf("0x%02x ", data[i]);
-        }
-        printf("\n");
         memcpy(&speed, &(data[1]), 2);
         memcpy(&dir, &(data[3]), 2);
-        printf("got CTRL - speed: %i, dir: %i\n", speed, dir);
         brain_set_speed(speed);
         brain_steer(dir);
     } else {
@@ -142,11 +137,9 @@ void brain_set_speed(int16_t speed)
 
 void brain_steer(int16_t dir)
 {
-    printf("seteering to %i\n", dir);
     dir = (dir / 2) + CONF_STEERING_CENTER;
     if (dir < 0) {
         dir = CONF_STEERING_MIN;
     }
     servo_set(&steering, (unsigned int)dir);
-    puts("done steering");
 }
