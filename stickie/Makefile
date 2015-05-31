@@ -10,7 +10,7 @@ ANTENNA ?= /dev/ttyUSB1
 BINDIR = $(CURDIR)/bin
 
 CC = gcc
-CFLAGS = -std=gnu99 -Wall
+CFLAGS = -std=gnu99 -Wall -pthread
 INCLUDES =
 
 SRC = $(wildcard *.c)
@@ -24,7 +24,7 @@ run: $(APPLICATION)
 	./$(APPLICATION) $(STICK) $(STICK_AX) $(STICK_AY) $(ANTENNA)
 
 $(APPLICATION): $(OBJ)
-	gcc -o $(APPLICATION) $^
+	gcc $(CFLAGS) -o $(APPLICATION) $^
 
 $(OBJ): $(SRC)
 	$(CC) $(CFLAGS) $(INCLUDES)-c $^ -o $@
