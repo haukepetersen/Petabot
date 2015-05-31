@@ -40,17 +40,11 @@
  * @brief   Configure communication
  * @{
  */
-#define CONF_IOTLAB_RADIO_SPI       SPI_0
-#define CONF_IOTLAB_RADIO_SPI_SPEED (SPI_SPEED_5MHZ)
-#define CONF_IOTLAB_RADIO_CS        GPIO_11
-#define CONF_IOTLAB_RADIO_INT       GPIO_12
-#define CONF_IOTLAB_RADIO_RESET     GPIO_13
-#define CONF_IOTLAB_RADIO_SLEEP     GPIO_14
-
-#define CONF_COMM_ADDR              (0x2233)
 #define CONF_COMM_PAN               (0x2300)
+#define CONF_COMM_ADDR              {0x22, 0x33}
+#define CONF_COMM_CHAN              (26U)
 
-#define CONF_COMM_PETA_ADDR         (0x0123)
+#define CONF_COMM_PETA_ADDR         {0x23, 0x01}
 /** @} */
 
 #ifdef __cplusplus

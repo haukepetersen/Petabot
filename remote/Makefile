@@ -11,9 +11,8 @@ RIOTBASE ?= $(CURDIR)/../../riot/RIOT
 USEMODULE += uart0
 USEMODULE += shell
 USEMODULE += shell_commands
-USEMODULE += ng_at86rf231
-USEMODULE += ng_nomac
-USEMODULE += ng_netbase
+USEMODULE += ng_netif
+USEMODULE += auto_init_ng_netif
 
 # Comment this out to disable code in RIOT that does safety checking
 # which is not needed in a production environment but helps in the

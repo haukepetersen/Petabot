@@ -34,9 +34,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "comm.h"
-#include "remote_config.h"
-
 #include "board_uart0.h"
 #include "posix_io.h"
 #include "shell.h"
@@ -44,16 +41,12 @@
 #include "net/ng_nomac.h"
 #include "net/ng_netbase.h"
 
+#include "comm.h"
+#include "remote_config.h"
+
 #define SHELL_BUFSIZE           (64U)
 
-#define IF_STACKSIZE            (KERNEL_CONF_STACKSIZE_DEFAULT)
-#define IF_STACKPRIO            (PRIORITY_MAIN - 4)
-
-static char if_stack[IF_STACKSIZE];
-
 static kernel_pid_t if_pid;
-
-static ng_at86rf2xx_t radio;
 
 static uint8_t peta_addr[2];
 
@@ -114,24 +107,27 @@ static const shell_command_t _commands[] = {
 int main(void)
 {
     shell_t shell;
-    uint16_t addr = CONF_COMM_ADDR;
+    kernel_pid_t ifs[NG_NETIF_NUMOF];
+    uint8_t addr[2] = CONF_COMM_ADDR;
+    uint8_t peta[2] = CONF_COMM_PETA_ADDR;
     uint16_t pan = CONF_COMM_PAN;
-    uint16_t peta = CONF_COMM_PETA_ADDR;
+    uint16_t chan = CONF_COMM_CHAN;
+
     ctrl[0] = COMM_MSG_CTRL;
-    peta_addr[0] = peta >> 8;
-    peta_addr[1] = peta & 0xff;
+    memcpy(peta_addr, peta, 2);
+
+    /* get network interface PID */
+    if (ng_netif_get(ifs) <= 0) {
+        puts("ERROR: no network interface found");
+        return 1;
+    }
+    if_pid = ifs[0];
 
     /* bootstrap networking */
-    puts("init radio");
-    ng_at86rf2xx_init(&radio, CONF_IOTLAB_RADIO_SPI, CONF_IOTLAB_RADIO_SPI_SPEED,
-                      CONF_IOTLAB_RADIO_CS, CONF_IOTLAB_RADIO_INT,
-                      CONF_IOTLAB_RADIO_SLEEP, CONF_IOTLAB_RADIO_RESET);
-    puts("init MAC");
-    if_pid = ng_nomac_init(if_stack, IF_STACKSIZE, IF_STACKPRIO, "radio",
-                          (ng_netdev_t *)(&radio));
     puts("setting address and PAN");
     ng_netapi_set(if_pid, NETCONF_OPT_ADDRESS, 0, &addr, 2);
     ng_netapi_set(if_pid, NETCONF_OPT_NID, 0, &pan, 2);
+    ng_netapi_set(if_pid, NETCONF_OPT_CHANNEL, 0, &chan, 2);
 
     /* run the shell */
     (void) posix_open(uart0_handler_pid, 0);
