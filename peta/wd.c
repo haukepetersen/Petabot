@@ -33,7 +33,7 @@
 
 #include "board.h"
 #include "thread.h"
-#include "hwtimer.h"
+#include "xtimer.h"
 #include "periph/pwm.h"
 
 #include "wd.h"
@@ -65,7 +65,7 @@ static void *_thread(void *arg)
     (void)arg;
 
     while (1) {
-        hwtimer_wait(HWTIMER_TICKS(CONF_WD_INTERVAL));
+        xtimer_usleep(CONF_WD_INTERVAL);
         if (active && pkt_count < CONF_WD_THRESSHOLD) {
             _shutdown();
         }

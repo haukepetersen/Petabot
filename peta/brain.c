@@ -38,7 +38,7 @@
 #include "periph/gpio.h"
 #include "periph/pwm.h"
 #include "servo.h"
-#include "net/ng_netbase.h"
+#include "net/gnrc.h"
 
 #include "brain.h"
 #include "comm.h"
@@ -71,21 +71,21 @@ static void _dispatch(uint8_t *data, size_t len)
 
 static void *_brain_thread(void *arg)
 {
-    ng_netreg_entry_t netreg;
-    ng_pktsnip_t *snip;
+    gnrc_netreg_entry_t netreg;
+    gnrc_pktsnip_t *snip;
     msg_t msg;
 
     netreg.pid = thread_getpid();
-    netreg.demux_ctx = NG_NETREG_DEMUX_CTX_ALL;
-    ng_netreg_register(NG_NETTYPE_UNDEF, &netreg);
+    netreg.demux_ctx = GNRC_NETREG_DEMUX_CTX_ALL;
+    gnrc_netreg_register(GNRC_NETTYPE_UNDEF, &netreg);
 
     while (1) {
         msg_receive(&msg);
 
-        if (msg.type == NG_NETAPI_MSG_TYPE_RCV) {
-            snip = (ng_pktsnip_t *)msg.content.ptr;
+        if (msg.type == GNRC_NETAPI_MSG_TYPE_RCV) {
+            snip = (gnrc_pktsnip_t *)msg.content.ptr;
             _dispatch(snip->data, snip->size);
-            ng_pktbuf_release(snip);
+            gnrc_pktbuf_release(snip);
         }
     }
 
@@ -105,8 +105,8 @@ void brain_init(void)
     servo_set(&steering, CONF_STEERING_CENTER);
     /* initialize motor control */
     puts("init motor");
-    gpio_init_out(CONF_MOTOR_DIRA, GPIO_NOPULL);
-    gpio_init_out(CONF_MOTOR_DIRB, GPIO_NOPULL);
+    gpio_init(CONF_MOTOR_DIRA, GPIO_DIR_OUT, GPIO_NOPULL);////
+    gpio_init(CONF_MOTOR_DIRB, GPIO_DIR_OUT, GPIO_NOPULL);
     if (pwm_init(CONF_MOTOR_PWM, CONF_MOTOR_PWM_CHAN,
                  CONF_MOTOR_FREQ, CONF_MOTOR_RES) < 0) {
         puts("ERROR initializing the DRIVE PWM\n");
@@ -114,7 +114,7 @@ void brain_init(void)
     }
     pwm_set(CONF_MOTOR_PWM, CONF_MOTOR_PWM_CHAN, 0);
     /* initialize switches */
-    gpio_init_out(CONF_DISCO_PIN, GPIO_NOPULL);
+    gpio_init(CONF_DISCO_PIN, GPIO_DIR_OUT, GPIO_NOPULL);
     /* initialize the software watchdog */
     wd_init();
     /* initializing network support */

@@ -31,8 +31,8 @@
 #include <stdio.h>
 
 #include "kernel.h"
-#include "net/ng_netif.h"
-#include "net/ng_netapi.h"
+#include "net/gnrc/netif.h"
+#include "net/gnrc/netapi.h"
 
 #include "comm.h"
 #include "peta_config.h"
@@ -40,20 +40,20 @@
 
 void comm_init(void)
 {
-    kernel_pid_t ifs[NG_NETIF_NUMOF];
+    kernel_pid_t ifs[GNRC_NETIF_NUMOF];
     uint8_t addr[2] = CONF_COMM_ADDR;
     uint16_t pan = CONF_COMM_PAN;
     uint16_t chan = CONF_COMM_CHAN;
 
     /* get the PID of the first radio */
-    if (ng_netif_get(ifs) <= 0) {
+    if (gnrc_netif_get(ifs) <= 0) {
         puts("comm: ERROR during init, not radio found\n");
         return;
     }
 
     /* initialize the radio */
     puts("comm: setting address and PAN");
-    ng_netapi_set(ifs[0], NETCONF_OPT_ADDRESS, 0, &addr, 2);
-    ng_netapi_set(ifs[0], NETCONF_OPT_NID, 0, &pan, 2);
-    ng_netapi_set(ifs[0], NETCONF_OPT_CHANNEL, 0, &chan, 2);
+    gnrc_netapi_set(ifs[0], NETOPT_ADDRESS, 0, &addr, 2);
+    gnrc_netapi_set(ifs[0], NETOPT_NID, 0, &pan, 2);
+    gnrc_netapi_set(ifs[0], NETOPT_CHANNEL, 0, &chan, 2);
 }
