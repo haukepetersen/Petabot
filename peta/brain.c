@@ -52,6 +52,8 @@ static char stack[STACKSIZE];
 
 static servo_t steering;
 
+#define BRAIN_QUEUE_SIZE     (8)
+static msg_t _brain_msg_queue[BRAIN_QUEUE_SIZE];
 
 static void _dispatch(uint8_t *data, size_t len)
 {
@@ -74,6 +76,9 @@ static void *_brain_thread(void *arg)
     gnrc_netreg_entry_t netreg;
     gnrc_pktsnip_t *snip;
     msg_t msg;
+
+    /* A message que is mandatory for a thread that registers at netreg */
+    msg_init_queue(_brain_msg_queue, BRAIN_QUEUE_SIZE);
 
     netreg.pid = thread_getpid();
     netreg.demux_ctx = GNRC_NETREG_DEMUX_CTX_ALL;
