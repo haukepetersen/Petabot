@@ -110,7 +110,7 @@ void brain_init(void)
     servo_set(&steering, CONF_STEERING_CENTER);
     /* initialize motor control */
     puts("init motor");
-    gpio_init(CONF_MOTOR_DIRA, GPIO_DIR_OUT, GPIO_NOPULL);////
+    gpio_init(CONF_MOTOR_DIRA, GPIO_DIR_OUT, GPIO_NOPULL);
     gpio_init(CONF_MOTOR_DIRB, GPIO_DIR_OUT, GPIO_NOPULL);
     if (pwm_init(CONF_MOTOR_PWM, CONF_MOTOR_PWM_CHAN,
                  CONF_MOTOR_FREQ, CONF_MOTOR_RES) < 0) {
