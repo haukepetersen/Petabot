@@ -56,8 +56,8 @@
 #define CONF_MOTOR_PWM_CHAN     (0U)
 #define CONF_MOTOR_FREQ         (1000U)
 #define CONF_MOTOR_RES          (0x03ff)    /* results in ~10MHz timer freq */
-#define CONF_MOTOR_DIRA         GPIO(PA,13)
-#define CONF_MOTOR_DIRB         GPIO(PA,28)
+#define CONF_MOTOR_DIRA         GPIO_PIN(PA,13)
+#define CONF_MOTOR_DIRB         GPIO_PIN(PA,28)
 /** @} */
 
 /**
@@ -65,7 +65,7 @@
  * @{
  */
 #define CONF_DISCO_SWITCH       (0x01)
-#define CONF_DISCO_PIN          GPIO(PB,03)
+#define CONF_DISCO_PIN          GPIO_PIN(PB,03)
 /** @} */
 
 /**

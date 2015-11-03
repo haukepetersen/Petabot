@@ -99,16 +99,6 @@ static int _debug(int argc, char **argv)
     return 0;
 }
 
-static int _readc(void)
-{
-    return (int)getchar();
-}
-
-static void _putc(int c)
-{
-    putchar((char)c);
-}
-
 /**
  * @brief   Define some shell commands for testing the brain
  */
@@ -121,8 +111,10 @@ static const shell_command_t _commands[] = {
 
 int main(void)
 {
-    shell_t shell;
     LED_RED_OFF;
+
+    /* define buffer to be used by the shell */
+    char line_buf[SHELL_DEFAULT_BUFSIZE];
 
     /* initialize (and run) the brain */
     puts("initializing the brain");
@@ -130,8 +122,7 @@ int main(void)
 
     /* run the shell for debugging purposes */
     puts("running the shell");
-    shell_init(&shell, _commands, SHELL_BUFSIZE, _readc, _putc);
-    shell_run(&shell);
+    shell_run(_commands, line_buf, SHELL_DEFAULT_BUFSIZE);
 
     /* should never be reached */
     return 0;
