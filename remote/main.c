@@ -34,12 +34,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "board_uart0.h"
 #include "posix_io.h"
 #include "shell.h"
-#include "ng_at86rf2xx.h"
-#include "net/ng_nomac.h"
-#include "net/ng_netbase.h"
+#include "at86rf2xx.h"
+#include "net/gnrc.h"
 
 #include "comm.h"
 #include "remote_config.h"
@@ -56,8 +54,8 @@ static uint8_t ctrl[6];
 static int _ctrl(int argc, char **argv)
 {
     int16_t speed, dir;
-    ng_pktsnip_t *pkt;
-    ng_netif_hdr_t *nethdr;
+    gnrc_pktsnip_t *pkt;
+    gnrc_netif_hdr_t *nethdr;
 
     if (argc < 4) {
         printf("usage: %s <speed> <dir> <switches>\n", argv[0]);
@@ -80,25 +78,13 @@ static int _ctrl(int argc, char **argv)
     printf("\n");
 
     /* allocate and send packet */
-    pkt = ng_pktbuf_add(NULL, ctrl, sizeof(ctrl), NG_NETTYPE_UNDEF);
-    pkt = ng_pktbuf_add(pkt, NULL, sizeof(ng_netif_hdr_t) + 2, NG_NETTYPE_NETIF);
-    nethdr = (ng_netif_hdr_t *)pkt->data;
-    ng_netif_hdr_init(nethdr, 0, 2);
-    ng_netif_hdr_set_dst_addr(nethdr, peta_addr, 2);
-    ng_netapi_send(if_pid, pkt);
+    pkt = gnrc_pktbuf_add(NULL, ctrl, sizeof(ctrl), GNRC_NETTYPE_UNDEF);
+    pkt = gnrc_pktbuf_add(pkt, NULL, sizeof(gnrc_netif_hdr_t) + 2, GNRC_NETTYPE_NETIF);
+    nethdr = (gnrc_netif_hdr_t *)pkt->data;
+    gnrc_netif_hdr_init(nethdr, 0, 2);
+    gnrc_netif_hdr_set_dst_addr(nethdr, peta_addr, 2);
+    gnrc_netapi_send(if_pid, pkt);
     return 0;
-}
-
-static int _readc(void)
-{
-    char c = 0;
-    (void) posix_read(uart0_handler_pid, &c, 1);
-    return c;
-}
-
-static void _putc(int c)
-{
-    putchar((char)c);
 }
 
 /**
@@ -111,8 +97,10 @@ static const shell_command_t _commands[] = {
 
 int main(void)
 {
-    shell_t shell;
-    kernel_pid_t ifs[NG_NETIF_NUMOF];
+    /* define buffer to be used by the shell */
+    char line_buf[SHELL_DEFAULT_BUFSIZE];
+
+    kernel_pid_t ifs[GNRC_NETIF_NUMOF];
     uint8_t addr[2] = CONF_COMM_ADDR;
     uint8_t peta[2] = CONF_COMM_PETA_ADDR;
     uint16_t pan = CONF_COMM_PAN;
@@ -122,7 +110,7 @@ int main(void)
     memcpy(peta_addr, peta, 2);
 
     /* get network interface PID */
-    if (ng_netif_get(ifs) <= 0) {
+    if (gnrc_netif_get(ifs) <= 0) {
         puts("ERROR: no network interface found");
         return 1;
     }
@@ -130,14 +118,12 @@ int main(void)
 
     /* bootstrap networking */
     puts("setting address and PAN");
-    ng_netapi_set(if_pid, NETCONF_OPT_ADDRESS, 0, &addr, 2);
-    ng_netapi_set(if_pid, NETCONF_OPT_NID, 0, &pan, 2);
-    ng_netapi_set(if_pid, NETCONF_OPT_CHANNEL, 0, &chan, 2);
+    gnrc_netapi_set(if_pid, NETOPT_ADDRESS, 0, &addr, 2);
+    gnrc_netapi_set(if_pid, NETOPT_NID, 0, &pan, 2);
+    gnrc_netapi_set(if_pid, NETOPT_CHANNEL, 0, &chan, 2);
 
     /* run the shell */
-    (void) posix_open(uart0_handler_pid, 0);
-    shell_init(&shell, _commands, SHELL_BUFSIZE, _readc, _putc);
-    shell_run(&shell);
+    shell_run(_commands, line_buf, SHELL_DEFAULT_BUFSIZE);
 
     /* never reached */
     return 0;
