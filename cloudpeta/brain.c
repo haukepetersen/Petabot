@@ -116,37 +116,39 @@ static void event(int evt)
             puts("unkown");
     }
 
-    /* start condition */
-    if ((state == 0) && (evt == EVT_FRONT_FREE)) {
-        puts("evt: start");
-        speed = CONF_BRAIN_SPEED;
-        motor_set(&mot, speed);
-    }
+    if ((behavior == 0) || (behavior == 1)) {
+        /* start condition */
+        if ((state == 0) && (evt == EVT_FRONT_FREE)) {
+            puts("evt: start");
+            speed = CONF_BRAIN_SPEED;
+            motor_set(&mot, speed);
+        }
 
-    /* going forward, hitting obstacle -> steer full and go backwards */
-    else if ((state == 0) && (evt == EVT_FRONT_BLOCKED)) {
-        motor_stop(&mot);
+        /* going forward, hitting obstacle -> steer full and go backwards */
+        else if ((state == 0) && (evt == EVT_FRONT_BLOCKED)) {
+            motor_stop(&mot);
 
-        puts("evt: hit forward obstacle");
+            puts("evt: hit forward obstacle");
 
-        dir = (behavior == 0) ? -1000 : 1000;
-        speed = -CONF_BRAIN_SPEED;
-        brain_steer(dir);
-        motor_set(&mot, speed);
-        state = 1;
-    }
+            dir = (behavior == 0) ? -1000 : 1000;
+            speed = -CONF_BRAIN_SPEED;
+            brain_steer(dir);
+            motor_set(&mot, speed);
+            state = 1;
+        }
 
-    /* going backwards, hitting obstacle */
-    else if ((state == 1) && (evt == EVT_BACK_BLOCKED)) {
-        motor_stop(&mot);
+        /* going backwards, hitting obstacle */
+        else if ((state == 1) && (evt == EVT_BACK_BLOCKED)) {
+            motor_stop(&mot);
 
-        puts("evt: hit backwards obstacle");
+            puts("evt: hit backwards obstacle");
 
-        dir = 0;
-        speed = CONF_BRAIN_SPEED;
-        brain_steer(dir);
-        motor_set(&mot, speed);
-        state = 0;
+            dir = 0;
+            speed = CONF_BRAIN_SPEED;
+            brain_steer(dir);
+            motor_set(&mot, speed);
+            state = 0;
+        }
     }
 }
 
@@ -255,5 +257,30 @@ void brain_switches(uint8_t state)
     }
     else {
         gpio_clear(CONF_DISCO_PIN);
+    }
+}
+
+void brain_ctrl(int16_t speed, int16_t dir)
+{
+    if ((speed > 0) && front_blocked) {
+        motor_stop(&mot);
+        return;
+    }
+    if ((speed < 0) && back_blocked) {
+        motor_stop(&mot);
+        return;
+    }
+    brain_set_speed(speed);
+    brain_steer(dir);
+}
+
+void brain_change_behavior(int bval)
+{
+    behavior = bval;
+    if (((bval == 0) || (bval == 1)) && (speed == 0)) {
+        motor_set(&mot, CONF_BRAIN_SPEED);
+    }
+    else if (bval == 2) {
+        motor_stop(&mot);
     }
 }

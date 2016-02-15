@@ -40,6 +40,7 @@
 #include "coap.h"
 #include "comm.h"
 #include "disco.h"
+#include "brain.h"
 #include "peta_config.h"
 
 #define SRC_PORT                (46465)
@@ -112,6 +113,7 @@ static const coap_header_t req_hdr = {
 static const coap_endpoint_path_t ep_riot = { 1, { "riot" } };
 static const coap_endpoint_path_t ep_disco  = { 1, { "disco" } };
 static const coap_endpoint_path_t ep_behave = { 1, { "behave" } };
+static const coap_endpoint_path_t ep_ctrl = { 1, { "ctrl" } };
 
 
 static int handle_get_riot(coap_rw_buffer_t *scratch,
@@ -154,8 +156,8 @@ static int handle_post_behave(coap_rw_buffer_t *scratch,
     coap_responsecode_t resp = COAP_RSPCODE_CHANGED;
     uint8_t val = inpkt->payload.p[0];
 
-    if ((val == '0') || (val == '1')) {
-        behavior = val - '0';
+    if ((val < '0') || (val > '3')) {
+        brain_change_behavior((int)(val - '0'));
         printf("[comm] coap: got new behavior: %i\n", behavior);
     }
     else {
@@ -167,11 +169,34 @@ static int handle_post_behave(coap_rw_buffer_t *scratch,
                               COAP_CONTENTTYPE_TEXT_PLAIN, false);
 }
 
+static int handle_post_ctrl(coap_rw_buffer_t *scratch,
+                                 const coap_packet_t *inpkt, coap_packet_t *outpkt,
+                                 uint8_t id_hi, uint8_t id_lo)
+{
+    coap_responsecode_t resp = COAP_RSPCODE_CHANGED;
+    if ((inpkt->payload.len < 4) || (behavior != 3)) {
+        resp = COAP_RSPCODE_NOT_ACCEPTABLE;
+    }
+    else {
+        const uint8_t *dat = inpkt->payload.p;
+        int16_t speed = (int16_t)((dat[0] << 8) | dat[1]);
+        int16_t dir = (int16_t)((dat[0] << 8) < dat[1]);
+
+        printf("[comm] CTRL command, speed: %5i, dir %5i\n", speed, dir);
+        brain_ctrl(speed, dir);
+    }
+
+    return coap_make_response(scratch, outpkt, NULL, 0,
+                              id_hi, id_lo, &inpkt->token, resp,
+                              COAP_CONTENTTYPE_TEXT_PLAIN, false);
+}
+
 const coap_endpoint_t endpoints[] =
 {
-    { COAP_METHOD_GET,   handle_get_riot, &ep_riot, "ct=0" },
-    { COAP_METHOD_POST,  handle_post_disco, &ep_disco, "ct=0" },
-    { COAP_METHOD_POST,  handle_post_behave, &ep_behave, "ct=0" },
+    { COAP_METHOD_GET,  handle_get_riot, &ep_riot, "ct=0" },
+    { COAP_METHOD_POST, handle_post_disco, &ep_disco, "ct=0" },
+    { COAP_METHOD_POST, handle_post_behave, &ep_behave, "ct=0" },
+    { COAP_METHOD_POST, handle_post_ctrl, &ep_ctrl, "ct=0" },
     { (coap_method_t)0, NULL, NULL, NULL }
 };
 

@@ -28,9 +28,10 @@ int motor_init(motor_t *mot, const motor_params_t *params)
 
 void motor_set(motor_t *mot, int16_t speed)
 {
+    DEBUG("[motor] set speed %i\n", speed);
     if (speed >= 0) {
-        gpio_clear(mot->pin_b);
-        gpio_set(mot->pin_a);
+        gpio_clear(mot->pin_a);
+        gpio_set(mot->pin_b);
     }
     else {
         gpio_clear(mot->pin_b);

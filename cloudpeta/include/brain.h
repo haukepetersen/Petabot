@@ -44,6 +44,10 @@ void brain_steer(int16_t dir);
 
 void brain_switches(uint8_t state);
 
+void brain_ctrl(int16_t speed, int16_t dir);
+
+void brain_change_behavior(int bval);
+
 #ifdef __cplusplus
 }
 #endif
