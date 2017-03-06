@@ -36,12 +36,15 @@
 
 #include "shell.h"
 #include "board.h"
+#include "msg.h"
 
 #include "comm.h"
 #include "brain.h"
 #include "peta_config.h"
 
 #define SHELL_BUFSIZE       (64U)
+
+msg_t msg_queue[8];
 
 
 static int _speed(int argc, char **argv)
@@ -94,6 +97,7 @@ int main(void)
 {
     LED_RED_OFF;
 
+    msg_init_queue(msg_queue, 8);
 
     /* bootstrap the communication stack */
     brain_run();

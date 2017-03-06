@@ -82,7 +82,7 @@ static int filter_pos = 0;
  * @brief   Movement state
  * @{
  */
-int behavior = 0;
+int behavior = 2;
 int front_blocked = 1;
 int back_blocked = 1;
 int16_t speed = 0;
@@ -262,12 +262,15 @@ void brain_switches(uint8_t state)
 
 void brain_ctrl(int16_t speed, int16_t dir)
 {
+    printf("[brain] CTRL set speed %i and dir %i\n", speed, dir);
     if ((speed > 0) && front_blocked) {
         motor_stop(&mot);
+        printf("[brain] CTRL FRONT BLOCKED\n");
         return;
     }
     if ((speed < 0) && back_blocked) {
         motor_stop(&mot);
+        printf("[brain] CTRL BACK BLOCKED\n");
         return;
     }
     brain_set_speed(speed);
@@ -276,11 +279,15 @@ void brain_ctrl(int16_t speed, int16_t dir)
 
 void brain_change_behavior(int bval)
 {
+    printf("[brain] new behavior: %i\n", bval);
     behavior = bval;
-    if (((bval == 0) || (bval == 1)) && (speed == 0)) {
+    if ((bval == 0) || (bval == 1)) {
+        state = 0;
         motor_set(&mot, CONF_BRAIN_SPEED);
+        event(EVT_FRONT_FREE);
     }
     else if (bval == 2) {
         motor_stop(&mot);
+        printf("[brain] STOPPING MOTOR\n");
     }
 }

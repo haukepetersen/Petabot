@@ -156,7 +156,7 @@ static int handle_post_behave(coap_rw_buffer_t *scratch,
     coap_responsecode_t resp = COAP_RSPCODE_CHANGED;
     uint8_t val = inpkt->payload.p[0];
 
-    if ((val < '0') || (val > '3')) {
+    if ((val >= '0') && (val <= '3')) {
         brain_change_behavior((int)(val - '0'));
         printf("[comm] coap: got new behavior: %i\n", behavior);
     }
@@ -174,15 +174,15 @@ static int handle_post_ctrl(coap_rw_buffer_t *scratch,
                                  uint8_t id_hi, uint8_t id_lo)
 {
     coap_responsecode_t resp = COAP_RSPCODE_CHANGED;
+
     if ((inpkt->payload.len < 4) || (behavior != 3)) {
         resp = COAP_RSPCODE_NOT_ACCEPTABLE;
     }
     else {
         const uint8_t *dat = inpkt->payload.p;
         int16_t speed = (int16_t)((dat[0] << 8) | dat[1]);
-        int16_t dir = (int16_t)((dat[0] << 8) < dat[1]);
+        int16_t dir = (int16_t)((dat[2] << 8) | dat[3]);
 
-        printf("[comm] CTRL command, speed: %5i, dir %5i\n", speed, dir);
         brain_ctrl(speed, dir);
     }
 
