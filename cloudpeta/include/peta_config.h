@@ -99,7 +99,7 @@
 #define CONF_COMM_CHAN          (26U)
 #define CONF_COMM_UPDATE_DELAY  (250000)
 #define CONF_COMM_NODEID        "RIOT-Car"
-#define CONF_COMM_HORST_ADDR    "2001:affe:1234::1"
+#define CONF_COMM_HORST_ADDR    "2001:affe:0815::1"
 #define CONF_COMM_COAP_PORT     (5683U)
 /** @} */
 
