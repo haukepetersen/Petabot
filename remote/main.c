@@ -34,9 +34,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "posix_io.h"
 #include "shell.h"
-#include "at86rf2xx.h"
 #include "net/gnrc.h"
 
 #include "comm.h"

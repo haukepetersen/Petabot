@@ -30,7 +30,6 @@
 
 #include <stdio.h>
 
-#include "kernel.h"
 #include "net/gnrc/netif.h"
 #include "net/gnrc/netapi.h"
 

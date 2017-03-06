@@ -40,7 +40,7 @@
  * @brief   Configure the steering servo motor
  * @{
  */
-#define CONF_STEERING_PWM       (PWM_1)
+#define CONF_STEERING_PWM       (PWM_DEV(1))
 #define CONF_STEERING_PWM_CHAN  (0U)
 #define CONF_STEERING_RES       (0x03ff)    /* 10-bit resolution */
 #define CONF_STEERING_MIN       (1000)
@@ -52,7 +52,7 @@
  * @brief   Configure the main motor
  * @{
  */
-#define CONF_MOTOR_PWM          (PWM_0)
+#define CONF_MOTOR_PWM          (PWM_DEV(0))
 #define CONF_MOTOR_PWM_CHAN     (0U)
 #define CONF_MOTOR_FREQ         (1000U)
 #define CONF_MOTOR_RES          (0x03ff)    /* results in ~10MHz timer freq */
@@ -74,7 +74,7 @@
  */
 #define CONF_COMM_PAN           (0x2300)
 #define CONF_COMM_ADDR          {0x23, 0x01}
-#define CONF_COMM_CHAN          (26U)
+#define CONF_COMM_CHAN          (14U)
 /** @} */
 
 /**

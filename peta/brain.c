@@ -32,7 +32,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "kernel.h"
 #include "thread.h"
 #include "msg.h"
 #include "periph/gpio.h"
@@ -53,11 +52,13 @@ static char stack[STACKSIZE];
 static servo_t steering;
 
 #define BRAIN_QUEUE_SIZE     (8)
-static msg_t _brain_msg_queue[BRAIN_QUEUE_SIZE];
+static msg_t brain_msg_queue[BRAIN_QUEUE_SIZE];
 
-static void _dispatch(uint8_t *data, size_t len)
+static void dispatch(uint8_t *data, size_t len)
 {
     int16_t speed, dir;
+
+    printf("got data: ");
 
     if (data[0] == COMM_MSG_CTRL && len == COMM_MSG_LEN) {
         memcpy(&speed, &(data[1]), 2);
@@ -66,21 +67,23 @@ static void _dispatch(uint8_t *data, size_t len)
         brain_steer(dir);
         brain_switches(data[5]);
         wd_report();
+        printf("speed: %i, steer: %i", (int)speed, (int)dir);
     } else {
         // puts("unknown data");
     }
+    puts("");
 }
 
-static void *_brain_thread(void *arg)
+static void *brain_thread(void *arg)
 {
     gnrc_netreg_entry_t netreg;
     gnrc_pktsnip_t *snip;
     msg_t msg;
 
     /* A message que is mandatory for a thread that registers at netreg */
-    msg_init_queue(_brain_msg_queue, BRAIN_QUEUE_SIZE);
+    msg_init_queue(brain_msg_queue, BRAIN_QUEUE_SIZE);
 
-    netreg.pid = thread_getpid();
+    netreg.target.pid = thread_getpid();
     netreg.demux_ctx = GNRC_NETREG_DEMUX_CTX_ALL;
     gnrc_netreg_register(GNRC_NETTYPE_UNDEF, &netreg);
 
@@ -89,7 +92,7 @@ static void *_brain_thread(void *arg)
 
         if (msg.type == GNRC_NETAPI_MSG_TYPE_RCV) {
             snip = (gnrc_pktsnip_t *)msg.content.ptr;
-            _dispatch(snip->data, snip->size);
+            dispatch(snip->data, snip->size);
             gnrc_pktbuf_release(snip);
         }
     }
@@ -110,8 +113,8 @@ void brain_init(void)
     servo_set(&steering, CONF_STEERING_CENTER);
     /* initialize motor control */
     puts("init motor");
-    gpio_init(CONF_MOTOR_DIRA, GPIO_DIR_OUT, GPIO_NOPULL);
-    gpio_init(CONF_MOTOR_DIRB, GPIO_DIR_OUT, GPIO_NOPULL);
+    gpio_init(CONF_MOTOR_DIRA, GPIO_OUT);
+    gpio_init(CONF_MOTOR_DIRB, GPIO_OUT);
     if (pwm_init(CONF_MOTOR_PWM, CONF_MOTOR_PWM_CHAN,
                  CONF_MOTOR_FREQ, CONF_MOTOR_RES) < 0) {
         puts("ERROR initializing the DRIVE PWM\n");
@@ -119,7 +122,7 @@ void brain_init(void)
     }
     pwm_set(CONF_MOTOR_PWM, CONF_MOTOR_PWM_CHAN, 0);
     /* initialize switches */
-    gpio_init(CONF_DISCO_PIN, GPIO_DIR_OUT, GPIO_NOPULL);
+    gpio_init(CONF_DISCO_PIN, GPIO_OUT);
     /* initialize the software watchdog */
     wd_init();
     /* initializing network support */
@@ -127,7 +130,7 @@ void brain_init(void)
     comm_init();
     /* run brain thread */
     puts("run the brain");
-    thread_create(stack, STACKSIZE, STACKPRIO, CREATE_STACKTEST, _brain_thread,
+    thread_create(stack, STACKSIZE, STACKPRIO, 0, brain_thread,
                   NULL, "brain");
 }
 

@@ -8,12 +8,12 @@ BOARD ?= samr21-xpro
 RIOTBASE ?= $(CURDIR)/../../RIOT
 
 # define the modules used for Peta
+USEMODULE += gnrc_netdev_default
+USEMODULE += auto_init_gnrc_netif
 USEMODULE += shell
 USEMODULE += shell_commands
 USEMODULE += ps
 USEMODULE += servo
-USEMODULE += gnrc_netif_default
-USEMODULE += auto_init_gnrc_netif
 USEMODULE += xtimer
 
 # Comment this out to disable code in RIOT that does safety checking

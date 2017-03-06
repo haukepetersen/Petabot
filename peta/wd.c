@@ -47,30 +47,32 @@ static int active = 1;
 static volatile int pkt_count = 0;
 
 
-static void _shutdown(void)
+static void shutdown(void)
 {
     brain_set_speed(0);
+    LED0_OFF;
     /* HACK */
-    pwm_set(PWM_1, 1, 0);
+    // pwm_set(PWM_1, 1, 0);
 }
 
-static void _be_happy(void)
+static void be_happy(void)
 {
+    LED0_ON;
     /* HACK */
-    pwm_set(PWM_1, 1, 10000);
+    // pwm_set(PWM_1, 1, 10000);
 }
 
-static void *_thread(void *arg)
+static void *thread(void *arg)
 {
     (void)arg;
 
     while (1) {
         xtimer_usleep(CONF_WD_INTERVAL);
         if (active && pkt_count < CONF_WD_THRESSHOLD) {
-            _shutdown();
+            shutdown();
         }
         else {
-            _be_happy();
+            be_happy();
         }
         pkt_count = 0;
     }
@@ -82,8 +84,8 @@ static void *_thread(void *arg)
 void wd_init(void)
 {
     /* start the thread */
-    thread_create(wd_stack, sizeof(wd_stack), CONF_WD_PRIO, CREATE_STACKTEST,
-                  _thread, NULL, "wd");
+    thread_create(wd_stack, sizeof(wd_stack), CONF_WD_PRIO, 0,
+                  thread, NULL, "wd");
 }
 
 void wd_report(void)

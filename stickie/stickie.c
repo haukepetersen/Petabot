@@ -14,7 +14,7 @@
 #define TYPE_BUTTON         (1U)
 #define TYPE_AXIS           (2U)
 
-#define BAUDRATE            (B500000)
+#define BAUDRATE            (B115200)       /* iotlab: (B500000) */
 
 #define UPDATE_INTERVAL     (20 * 1000)     /* 20ms */
 

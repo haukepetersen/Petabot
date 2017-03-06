@@ -111,14 +111,15 @@ static const shell_command_t _commands[] = {
 
 int main(void)
 {
-    LED_RED_OFF;
-
     /* define buffer to be used by the shell */
     char line_buf[SHELL_DEFAULT_BUFSIZE];
 
     /* initialize (and run) the brain */
     puts("initializing the brain");
     brain_init();
+
+    /* active watchdog */
+    wd_activate(1);
 
     /* run the shell for debugging purposes */
     puts("running the shell");
