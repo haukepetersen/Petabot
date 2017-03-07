@@ -74,7 +74,7 @@
  */
 #define CONF_COMM_PAN           (0x2300)
 #define CONF_COMM_ADDR          {0x23, 0x01}
-#define CONF_COMM_CHAN          (14U)
+#define CONF_COMM_CHAN          (26U)
 /** @} */
 
 /**
