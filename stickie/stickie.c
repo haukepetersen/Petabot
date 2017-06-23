@@ -18,9 +18,9 @@
 
 #define UPDATE_INTERVAL     (20 * 1000)     /* 20ms */
 
-#define AXIS_STEERING       (3)
-#define AXIS_FW             (2)
-#define AXIS_BW             (5)
+#define AXIS_STEERING       (0)
+#define AXIS_FW             (5)
+#define AXIS_BW             (2)
 #define BUTTON_DISCO        (7)
 
 static int remote;
@@ -32,6 +32,8 @@ static volatile uint8_t switches = 0;
 
 static int buttons = 0;
 static int axes = 0;
+
+static int limiter = 1;
 
 static int open_remote(const char *dev, int baudrate)
 {
@@ -54,7 +56,7 @@ static int open_remote(const char *dev, int baudrate)
         return -1;
     }
 
-    printf("Found Remote: %s @ %ibps\n", dev, 500000);
+    printf("Found Remote: %s @ %ibps\n", dev, 115200);
     return fd;
 }
 
@@ -139,6 +141,9 @@ static void *stick_reader(void *arg)
                 else {
                     speed = a / 64;
                 }
+                /* apply limiter */
+                speed /= limiter;
+                /* calculate steering value */
                 dir = (steering / 32);
 
                 printf("raw:  %7i   %7u   %7u\n", steering, a, b);
@@ -162,8 +167,12 @@ int main(int argc, char **argv)
     int line_len;
 
     if (argc < 3) {
-        printf("usage: %s <device> <antenna dev>\n", argv[0]);
+        printf("usage: %s <device> <antenna dev> [limiter]\n", argv[0]);
         return 1;
+    }
+
+    if (argc >= 4) {
+        limiter = atoi(argv[3]);
     }
 
     js = open_stick(argv[1]);
