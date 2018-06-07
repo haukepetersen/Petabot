@@ -98,7 +98,6 @@ int main(void)
     /* define buffer to be used by the shell */
     char line_buf[SHELL_DEFAULT_BUFSIZE];
 
-    kernel_pid_t ifs[GNRC_NETIF_NUMOF];
     uint8_t addr[2] = CONF_COMM_ADDR;
     uint8_t peta[2] = CONF_COMM_PETA_ADDR;
     uint16_t pan = CONF_COMM_PAN;
@@ -108,11 +107,12 @@ int main(void)
     memcpy(peta_addr, peta, 2);
 
     /* get network interface PID */
-    if (gnrc_netif_get(ifs) <= 0) {
+    gnrc_netif_t *netif = gnrc_netif_iter(NULL);
+    if (!netif) {
         puts("ERROR: no network interface found");
-        return 1;
     }
-    if_pid = ifs[0];
+
+    if_pid = netif->pid;
 
     /* bootstrap networking */
     puts("setting address and PAN");
