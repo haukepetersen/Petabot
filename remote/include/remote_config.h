@@ -42,7 +42,7 @@
  */
 #define CONF_COMM_PAN               (0xf0ba)
 #define CONF_COMM_ADDR              {0x22, 0x33}
-#define CONF_COMM_CHAN              (11U)
+#define CONF_COMM_CHAN              (24U)
 
 #define CONF_COMM_PETA_ADDR         {0x23, 0x01}
 /** @} */
