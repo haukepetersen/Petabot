@@ -76,6 +76,8 @@ static void dispatch(uint8_t *data, size_t len)
 
 static void *brain_thread(void *arg)
 {
+    (void)arg;
+
     gnrc_netreg_entry_t netreg;
     gnrc_pktsnip_t *snip;
     msg_t msg;
@@ -116,7 +118,7 @@ void brain_init(void)
     gpio_init(CONF_MOTOR_DIRA, GPIO_OUT);
     gpio_init(CONF_MOTOR_DIRB, GPIO_OUT);
     if (pwm_init(CONF_MOTOR_PWM, CONF_MOTOR_PWM_CHAN,
-                 CONF_MOTOR_FREQ, CONF_MOTOR_RES) < 0) {
+                 CONF_MOTOR_FREQ, CONF_MOTOR_RES) == 0) {
         puts("ERROR initializing the DRIVE PWM\n");
         return;
     }

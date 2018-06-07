@@ -44,7 +44,7 @@
 static char wd_stack[THREAD_STACKSIZE_DEFAULT];
 
 static int active = 1;
-static volatile int pkt_count = 0;
+static volatile unsigned pkt_count = 0;
 
 
 static void shutdown(void)
@@ -68,7 +68,7 @@ static void *thread(void *arg)
 
     while (1) {
         xtimer_usleep(CONF_WD_INTERVAL);
-        if (active && pkt_count < CONF_WD_THRESSHOLD) {
+        if (active && (pkt_count < CONF_WD_THRESSHOLD)) {
             shutdown();
         }
         else {

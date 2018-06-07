@@ -39,20 +39,20 @@
 
 void comm_init(void)
 {
-    kernel_pid_t ifs[GNRC_NETIF_NUMOF];
     uint8_t addr[2] = CONF_COMM_ADDR;
     uint16_t pan = CONF_COMM_PAN;
     uint16_t chan = CONF_COMM_CHAN;
 
     /* get the PID of the first radio */
-    if (gnrc_netif_get(ifs) <= 0) {
+    gnrc_netif_t *netif = gnrc_netif_iter(NULL);
+    if (netif == NULL) {
         puts("comm: ERROR during init, not radio found\n");
         return;
     }
 
     /* initialize the radio */
     puts("comm: setting address and PAN");
-    gnrc_netapi_set(ifs[0], NETOPT_ADDRESS, 0, &addr, 2);
-    gnrc_netapi_set(ifs[0], NETOPT_NID, 0, &pan, 2);
-    gnrc_netapi_set(ifs[0], NETOPT_CHANNEL, 0, &chan, 2);
+    gnrc_netapi_set(netif->pid, NETOPT_ADDRESS, 0, &addr, 2);
+    gnrc_netapi_set(netif->pid, NETOPT_NID, 0, &pan, 2);
+    gnrc_netapi_set(netif->pid, NETOPT_CHANNEL, 0, &chan, 2);
 }
