@@ -19,8 +19,8 @@
 #define UPDATE_INTERVAL     (20 * 1000)     /* 20ms */
 
 #define AXIS_STEERING       (0)
-#define AXIS_FW             (5)
-#define AXIS_BW             (2)
+#define AXIS_FW             (2)
+#define AXIS_BW             (5)
 #define BUTTON_DISCO        (7)
 
 static int remote;
